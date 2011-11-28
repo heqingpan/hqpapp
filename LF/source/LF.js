@@ -1,3 +1,13 @@
+/**
+ * LF is a JavaScript Library
+ *
+ * https://github.com/heqingpan/hqpapp
+ * Copyright (c) 2011 heqingpan
+ * Dual licensed under the MIT (MIT-LICENSE.txt)
+ * or GPL (GPL-LICENSE.txt) licenses.
+ *
+ * */
+
 (function(Top,libName){
 var object={};
 object.prototype={
