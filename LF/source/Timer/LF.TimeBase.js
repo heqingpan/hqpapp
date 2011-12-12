@@ -1,8 +1,9 @@
-///// class LF.TimeBase
-//
-//include LF.LinkListNode
-//
-//TimeSender={lastTime,interval,call,makeRemove,isRemove}
+/**
+ * class LF.TimeBase
+ * include LF.LinkListNode
+ *
+ * TimeSender={lastTime,interval,call,tiggerNode}
+ */
 LF.TimeBase=function(interval)
 {
 	var _interval;
@@ -22,7 +23,7 @@ LF.TimeBase=function(interval)
 
 	//filed
 	var This=this;
-	var _tiggerRoot=new LF.LinkListNode();
+	var _tiggerRoot=new LF.LinkListNode2();
 	var _lastNode=_tiggerRoot;
 	var _isStart=false;
 
@@ -35,10 +36,8 @@ LF.TimeBase=function(interval)
 	//visit function of visiter pattern
 	visit=function(sender)
 	{
-		if(sender.makeRemove)
+		if(sender.isStop)
 		{
-			//don't added is removed
-			sender.isRemove=true;
 			return;
 		}
 		sender.lastTime-=_interval;
@@ -47,13 +46,13 @@ LF.TimeBase=function(interval)
 			sender.call();
 			sender.lastTime+=sender.interval;
 		}
-		addEvent(sender);
 	};
 
 	addEvent=function(sender)
 	{
 		_lastNode.insertAfter(sender);
 		_lastNode=_lastNode.nextNode;
+		sender.tiggerNode=_lastNode;
 		if(!_isStart)
 		{
 			_isStart=true;
@@ -67,19 +66,12 @@ LF.TimeBase=function(interval)
 		{
 			start();
 		}
-		var newRoot=_tiggerRoot;
-		_tiggerRoot=new LF.LinkListNode();
-		_lastNode=_tiggerRoot;
-		if(!newRoot.nextNode)
+		if(_tiggerRoot==_lastNode)
 		{
 			_isStart=false;
 			return;
 		}
-		newRoot.nextNode.visitThisToEnd(visit);
-		if(!_tiggerRoot.nextNode)
-		{
-			_isStart=false;
-		}
+		_tiggerRoot.nextNode.visitThisToEnd(visit);
 	};
 
 	start=function()
@@ -91,10 +83,14 @@ LF.TimeBase=function(interval)
 	{
 		addEvent(sender);
 	};
+	this.remove=function(sender)
+	{
+		sender.tiggerNode.prevNode.removeNextNode();
+	}
 	this.getInterval=function()
 	{
 		return _interval;
 	};
 }
 LF.TimeBase._collections={};
-///// end class LF.TimeBase
+// end class LF.TimeBase

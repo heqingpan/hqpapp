@@ -1,30 +1,36 @@
-//// class LF.TimeSender
+/**
+ * class LF.TimeSender
+ *
+ */
 LF.TimeSender=function(func,interval)
 {
 	this.interval=interval||100;
 	this.lastTime=this.interval;
 	this.call=func||function(){};
-	this.makeRemove=false;
-	this.isRemove=true;
+	this.isStop=true;
+	this.tiggerNode=null;
 }
-////MakeParent
-LF.TimeSender.MakeParent=new LF.TimeSender();
-//// end class LF.TimeSender
+//Inherit
+LF.TimeSender.InheritValue=new LF.TimeSender();
+// end class LF.TimeSender
 
 
-//// class LF.Time
-//include LF.TimeBase
-//include LF.TimeSender
-//
-//func(sender,eventArgs)
-LF.Time=function(interval,eventArgs,func,times,baseInterval)
+/**
+ * class LF.Time
+ * include LF.TimeBase
+ * include LF.TimeSender
+ *
+ * func(sender,eventArgs)
+ */
+LF.Time=function(interval,eventArgs,func,times,timeBase)
 {
 	///field
 	var This=this;
 	//forever times is -1
 	var _times=-1;
 	var _eventArgs=eventArgs||null;
-	var _timeBase=new LF.TimeBase(parseInt(baseInterval));
+	var _timeBase=timeBase||(new LF.TimeBase());
+	var _isAdd=false;
 
 	///function
 	var inFunc=function(){};
@@ -40,6 +46,22 @@ LF.Time=function(interval,eventArgs,func,times,baseInterval)
 			}
 		}
 	};
+
+	this.setTimeBase=function(timeBase)
+	{
+		var isStop=This.isStop;
+		This.remove();
+		_timeBase=timeBase;
+		if(!isStop)
+		{
+			This.start();
+		}
+	}
+
+	this.getTimeBase=function()
+	{
+		return _timeBase;
+	}
 
 	this.setFunc=function(eventArgs,func)
 	{
@@ -66,7 +88,7 @@ LF.Time=function(interval,eventArgs,func,times,baseInterval)
 	{
 		if(_times==0)
 		{
-			This.stop();
+			This.remove();
 			return;
 		}
 		else
@@ -77,25 +99,30 @@ LF.Time=function(interval,eventArgs,func,times,baseInterval)
 	};
 	this.start=function()
 	{
-		if(This.isRemove)
+		if(This.isStop)
 		{
-			This.isRemove=false;
-			This.makeRemove=false;
+			This.isStop=false;
+			_isAdd=false;
 			This.lastTime=_timeBase.getInterval();
 			_timeBase.add(This);
-		}
-		else
-		{
-			This.makeRemove=false;
 		}
 	}
 	this.stop=function()
 	{
-		This.makeRemove=true;
+		This.isStop=true;
+	}
+	this.remove=function()
+	{
+		This.stop();
+		if(_isAdd)
+		{
+			_timeBase.remove(This);
+			_isAdd=false;
+		}
 	}
 	this.setInterval(interval);
 	this.setFunc(_eventArgs,func);
 	this.setTimes(times);
 }
-LF.Time.prototype=LF.TimeSender.MakeParent;
-//// end class LF.Time
+LF.Time.prototype=LF.TimeSender.InheritValue;
+// end class LF.Time

@@ -1,4 +1,3 @@
-module("Time");
 var func1,func2;
 var obj1,obj2;
 var time1,time2,time3;
@@ -60,7 +59,9 @@ obj2={
 };
 
 time1=new LF.Time(100,obj1,func1);
-time2=new LF.Time(100,obj2,func2,10);
+time1.setTimeBase(new LF.TimeBase(20));
+
+time2=new LF.Time(100,obj2,func2,10,new LF.TimeBase(20));
 
 time3=new LF.Time(200,
 	{name:"obj3",sum:0,times:0,step:2,number:0},
@@ -85,6 +86,16 @@ time3=new LF.Time(200,
 	},
 	10);
 
+module("TimeBase");
+test("time1.getTimeBase()==time2.getTimeBase()"
+		,function()
+{
+	ok(time1.getTimeBase()==time2.getTimeBase());
+});
+
+module("Time");
+
 time1.start();
 time2.start();
 time3.start();
+time3.setTimeBase(time2.getTimeBase());
