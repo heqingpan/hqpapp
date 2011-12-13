@@ -60,6 +60,12 @@ Top.Class=Class;
 var LF={};
 LF.object=object;
 LF.Class=Class;
+
+LF.getInherit=function(func)
+{
+	return func._inheritValue||new func();
+};
+LF.defaultFunc=function(){};
 /** 
  *	begin add LF.Class 
  *
