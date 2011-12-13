@@ -6,12 +6,10 @@ LF.TimeSender=function(func,interval)
 {
 	this.interval=interval||100;
 	this.lastTime=this.interval;
-	this.call=func||function(){};
+	this.call=func||LF.defaultFunc;
 	this.isStop=true;
 	this.tiggerNode=null;
 }
-//Inherit
-LF.TimeSender.InheritValue=new LF.TimeSender();
 // end class LF.TimeSender
 
 
@@ -31,9 +29,11 @@ LF.Time=function(interval,eventArgs,func,times,timeBase)
 	var _eventArgs=eventArgs||null;
 	var _timeBase=timeBase||(new LF.TimeBase());
 	var _isAdd=false;
+	var _onRemove=LF.defaultFunc;
+	var _onRemoveArgs=_eventArgs;
 
 	///function
-	var inFunc=function(){};
+	var inFunc=LF.defaultFunc;
 	
 	this.setInterval=function(interval)
 	{
@@ -47,8 +47,13 @@ LF.Time=function(interval,eventArgs,func,times,timeBase)
 		}
 	};
 
+	/** setTimeBase在start后连使用会出现一点问题，未解决。
 	this.setTimeBase=function(timeBase)
 	{
+		if(!timeBase||timeBase===_timeBase)
+		{
+			return;
+		}
 		var isStop=This.isStop;
 		This.remove();
 		_timeBase=timeBase;
@@ -57,6 +62,7 @@ LF.Time=function(interval,eventArgs,func,times,timeBase)
 			This.start();
 		}
 	}
+	*/
 
 	this.getTimeBase=function()
 	{
@@ -71,6 +77,12 @@ LF.Time=function(interval,eventArgs,func,times,timeBase)
 			_eventArgs=eventArgs||_eventArgs;
 		}
 	};
+
+	this.setOnRemove=function(func,args)
+	{
+		_onRemove=func;
+		_onRemoveArgs=args;
+	}
 
 	this.setTimes=function(times)
 	{
@@ -102,7 +114,7 @@ LF.Time=function(interval,eventArgs,func,times,timeBase)
 		if(This.isStop)
 		{
 			This.isStop=false;
-			_isAdd=false;
+			_isAdd=true;
 			This.lastTime=_timeBase.getInterval();
 			_timeBase.add(This);
 		}
@@ -117,6 +129,7 @@ LF.Time=function(interval,eventArgs,func,times,timeBase)
 		if(_isAdd)
 		{
 			_timeBase.remove(This);
+			_onRemove(This,_onRemoveArgs);
 			_isAdd=false;
 		}
 	}
@@ -124,5 +137,5 @@ LF.Time=function(interval,eventArgs,func,times,timeBase)
 	this.setFunc(_eventArgs,func);
 	this.setTimes(times);
 }
-LF.Time.prototype=LF.TimeSender.InheritValue;
+LF.Time.prototype=LF.getInherit(LF.TimeSender);
 // end class LF.Time
