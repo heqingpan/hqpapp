@@ -58,8 +58,7 @@ obj2={
 	number:1
 };
 
-time1=new LF.Time(100,obj1,func1);
-time1.setTimeBase(new LF.TimeBase(20));
+time1=new LF.Time(100,obj1,func1,null,new LF.TimeBase(20));
 
 time2=new LF.Time(100,obj2,func2,10,new LF.TimeBase(20));
 
@@ -95,7 +94,15 @@ test("time1.getTimeBase()==time2.getTimeBase()"
 
 module("Time");
 
+time2.setOnRemove(function(timer,args)
+{
+	test(" <span style='color:#FF0000;'>onRemove</span>"+args.name+" "+args.value
+			,function()
+	{
+		ok(true);
+	});
+},{name:"time1",value:"value1"});
+
 time1.start();
 time2.start();
 time3.start();
-time3.setTimeBase(time2.getTimeBase());
