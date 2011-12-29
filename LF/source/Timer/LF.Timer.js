@@ -7,7 +7,6 @@ LF.TimeSender=function(func,interval)
 	this.interval=interval||100;
 	this.lastTime=this.interval;
 	this.call=func||LF.defaultFunc;
-	this.isPause=true;
 	this.tiggerNode=null;
 }
 // end class LF.TimeSender
@@ -29,6 +28,7 @@ LF.Time=function(interval,eventArgs,func,times,timeBase)
 	var _eventArgs=eventArgs||null;
 	var _timeBase=timeBase||(new LF.TimeBase());
 	var _isStop=true;
+	var _isPause=true;
 	var _onStop=LF.defaultFunc;
 	var _onStopArgs=_eventArgs;
 
@@ -36,23 +36,30 @@ LF.Time=function(interval,eventArgs,func,times,timeBase)
 	
 	/** public begin **/
 
-	this.setInterval=function(interval)
+	this.setInterval=function(interval,lastTime)
 	{
 		if(interval && typeof(interval)=='number')
 		{
 			This.interval=interval;
-			This.lastTime=_timeBase.getInterval();
+			This.setLastTime(lastTime);
 		}
 	};
 
-	/** setTimeBase在start后连使用会出现一点问题，未解决。*/
+	this.setLastTime=function(lastTime)
+	{
+		if(lastTime && typeof(lastTime)=='number')
+		{
+			This.lastTime=lastTime;
+		}
+	}
+
 	this.setTimeBase=function(timeBase)
 	{
 		if(!timeBase||timeBase===_timeBase)
 		{
 			return;
 		}
-		var isPause=This.isPause;
+		var isPause=_isPause;
 		This.stop();
 		_timeBase=timeBase;
 		if(!isPause)
@@ -96,6 +103,11 @@ LF.Time=function(interval,eventArgs,func,times,timeBase)
 
 	this.call=function()
 	{
+		if(_isPause)
+		{
+			This.lastTime+=_timeBase.getInterval();
+			return;
+		}
 		if(_times==0)
 		{
 			This.stop();
@@ -111,19 +123,18 @@ LF.Time=function(interval,eventArgs,func,times,timeBase)
 	{
 		if(_isStop)
 		{
-			This.isPause=false;
+			_isPause=false;
 			_isStop=false;
-			This.lastTime=_timeBase.getInterval();
 			_timeBase.add(This);
 		}
-		else if(This.isPause)
+		else if(_isPause)
 		{
-			This.isPause=false;
+			_isPause=false;
 		}
 	}
 	this.pause=function()
 	{
-		This.isPause=true;
+		_isPause=true;
 	}
 	this.stop=function()
 	{
@@ -141,9 +152,16 @@ LF.Time=function(interval,eventArgs,func,times,timeBase)
 	this.setInterval(interval);
 	this.setFunc(_eventArgs,func);
 	this.setTimes(times);
+	this.setLastTime(_timeBase.getInterval());
 }
 LF.Time.prototype=LF.getInherit(LF.TimeSender);
 // end class LF.Time
 /** 更改 2011.12.28 09.21
  * 改变Timer.setInterval的初始时间，使其尽量马上执行
+ */
+/** update 2011.12.29 09.51 heqingpan
+ * setTimeBase在start后连使用会出现一点问题，已解决。
+ * 
+ * 增加 setLastTime,使setLastTime可独立设置
+ * 并把isPause设为私有成员_isPause,使其与LF.TimeBase分离 *
  */

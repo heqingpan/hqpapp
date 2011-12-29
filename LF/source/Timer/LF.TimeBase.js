@@ -42,10 +42,6 @@ LF.TimeBase=function(interval)
 	//visit function of visiter pattern
 	visit=function(sender)
 	{
-		if(sender.isPause)
-		{
-			return;
-		}
 		sender.lastTime-=_interval;
 		if(sender.lastTime<=0)
 		{
@@ -105,3 +101,7 @@ LF.TimeBase=function(interval)
 // 单例集合
 LF.TimeBase._collections={};
 // end class LF.TimeBase
+/** lpdate 2011.12.29 09.50 heqingpan
+ * 更新remove使_lastNode能正常工作——永远指向最后的结点
+ *
+ */
