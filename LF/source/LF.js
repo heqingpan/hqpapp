@@ -61,11 +61,21 @@ var LF={};
 LF.object=object;
 LF.Class=Class;
 
-LF.getInherit=function(func)
+/** LF core
+ * begin
+ */
+LF.getInherit=function(classFunc)
 {
-	return func._inheritValue||new func();
+	classFunc._inheritValue = classFunc._inheritValue||new classFunc();
+	return classFunc._inheritValue;
 };
 LF.defaultFunc=function(){};
+
+
+/** LF core
+ * end
+ */
+
 /** 
  *	begin add LF.Class 
  *

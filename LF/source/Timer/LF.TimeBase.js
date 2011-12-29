@@ -2,6 +2,10 @@
  * class LF.TimeBase
  * include LF.LinkListNode
  *
+ * 这个是定时的基础类，库中任何定时的功能都是封装调用它来实现，
+ * 以实现共享setTimeout，节省资源的目的。
+ * 相关作用可以参考LF.Timer。
+ *
  * TimeSender={lastTime,interval,call,tiggerNode}
  */
 LF.TimeBase=function(interval)
@@ -13,8 +17,10 @@ LF.TimeBase=function(interval)
 	}
 	else
 	{
-		_interval=20;
+		_interval=40;
 	}
+
+	//单例模式
 	if(LF.TimeBase._collections[_interval])
 	{
 		return LF.TimeBase._collections[_interval];
@@ -36,7 +42,7 @@ LF.TimeBase=function(interval)
 	//visit function of visiter pattern
 	visit=function(sender)
 	{
-		if(sender.isStop)
+		if(sender.isPause)
 		{
 			return;
 		}
@@ -86,11 +92,16 @@ LF.TimeBase=function(interval)
 	this.remove=function(sender)
 	{
 		sender.tiggerNode.prevNode.removeNextNode();
+		if(_lastNode===sender.tiggerNode)
+		{
+			_lastNode=sender.tiggerNode.prevNode;
+		}
 	}
 	this.getInterval=function()
 	{
 		return _interval;
 	};
 }
+// 单例集合
 LF.TimeBase._collections={};
 // end class LF.TimeBase

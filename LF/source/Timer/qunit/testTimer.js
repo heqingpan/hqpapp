@@ -94,9 +94,9 @@ test("time1.getTimeBase()==time2.getTimeBase()"
 
 module("Time");
 
-time2.setOnRemove(function(timer,args)
+time2.setOnStop(function(timer,args)
 {
-	test(" <span style='color:#FF0000;'>onRemove</span>"+args.name+" "+args.value
+	test(" <span style='color:#FF0000;'>onStop</span>"+args.name+" "+args.value
 			,function()
 	{
 		ok(true);
@@ -106,3 +106,6 @@ time2.setOnRemove(function(timer,args)
 time1.start();
 time2.start();
 time3.start();
+time1.setTimeBase(LF.TimeBase(65));
+time2.setTimeBase(LF.TimeBase(60));
+time3.setTimeBase(LF.TimeBase(1000));

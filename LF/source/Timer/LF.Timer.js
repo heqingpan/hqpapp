@@ -7,7 +7,7 @@ LF.TimeSender=function(func,interval)
 	this.interval=interval||100;
 	this.lastTime=this.interval;
 	this.call=func||LF.defaultFunc;
-	this.isStop=true;
+	this.isPause=true;
 	this.tiggerNode=null;
 }
 // end class LF.TimeSender
@@ -28,41 +28,39 @@ LF.Time=function(interval,eventArgs,func,times,timeBase)
 	var _times=-1;
 	var _eventArgs=eventArgs||null;
 	var _timeBase=timeBase||(new LF.TimeBase());
-	var _isAdd=false;
-	var _onRemove=LF.defaultFunc;
-	var _onRemoveArgs=_eventArgs;
+	var _isStop=true;
+	var _onStop=LF.defaultFunc;
+	var _onStopArgs=_eventArgs;
 
-	///function
 	var inFunc=LF.defaultFunc;
 	
+	/** public begin **/
+
 	this.setInterval=function(interval)
 	{
 		if(interval && typeof(interval)=='number')
 		{
 			This.interval=interval;
-			if(This.lastTime>interval)
-			{
-				This.lastTime=interval;
-			}
+			This.lastTime=_timeBase.getInterval();
 		}
 	};
 
-	/** setTimeBase在start后连使用会出现一点问题，未解决。
+	/** setTimeBase在start后连使用会出现一点问题，未解决。*/
 	this.setTimeBase=function(timeBase)
 	{
 		if(!timeBase||timeBase===_timeBase)
 		{
 			return;
 		}
-		var isStop=This.isStop;
-		This.remove();
+		var isPause=This.isPause;
+		This.stop();
 		_timeBase=timeBase;
-		if(!isStop)
+		if(!isPause)
 		{
 			This.start();
 		}
 	}
-	*/
+
 
 	this.getTimeBase=function()
 	{
@@ -78,10 +76,10 @@ LF.Time=function(interval,eventArgs,func,times,timeBase)
 		}
 	};
 
-	this.setOnRemove=function(func,args)
+	this.setOnStop=function(func,args)
 	{
-		_onRemove=func;
-		_onRemoveArgs=args;
+		_onStop=func;
+		_onStopArgs=args||_onStopArgs;
 	}
 
 	this.setTimes=function(times)
@@ -100,7 +98,7 @@ LF.Time=function(interval,eventArgs,func,times,timeBase)
 	{
 		if(_times==0)
 		{
-			This.remove();
+			This.stop();
 			return;
 		}
 		else
@@ -111,31 +109,41 @@ LF.Time=function(interval,eventArgs,func,times,timeBase)
 	};
 	this.start=function()
 	{
-		if(This.isStop)
+		if(_isStop)
 		{
-			This.isStop=false;
-			_isAdd=true;
+			This.isPause=false;
+			_isStop=false;
 			This.lastTime=_timeBase.getInterval();
 			_timeBase.add(This);
 		}
+		else if(This.isPause)
+		{
+			This.isPause=false;
+		}
+	}
+	this.pause=function()
+	{
+		This.isPause=true;
 	}
 	this.stop=function()
 	{
-		This.isStop=true;
-	}
-	this.remove=function()
-	{
-		This.stop();
-		if(_isAdd)
+		This.pause();
+		if(!_isStop)
 		{
 			_timeBase.remove(This);
-			_onRemove(This,_onRemoveArgs);
-			_isAdd=false;
+			_onStop(This,_onStopArgs);
+			_isStop=true;
 		}
 	}
+	/** public end **/
+
+
 	this.setInterval(interval);
 	this.setFunc(_eventArgs,func);
 	this.setTimes(times);
 }
 LF.Time.prototype=LF.getInherit(LF.TimeSender);
 // end class LF.Time
+/** 更改 2011.12.28 09.21
+ * 改变Timer.setInterval的初始时间，使其尽量马上执行
+ */
